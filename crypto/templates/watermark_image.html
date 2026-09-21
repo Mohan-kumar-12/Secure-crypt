@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}IMAGE WATERMARKING — SecureCrypt{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 1.5rem;">
+
+  <div class="page-header">
+    <h1>🖼️ IMAGE WATERMARKING</h1>
+    <p>Upload a digital image, configure text, position, opacity, and apply visual watermark protection with embedded metadata.</p>
+  </div>
+
+  <form id="imageWatermarkForm" enctype="multipart/form-data">
+    <div class="grid-2col">
+
+      <!-- Left Column: Upload & Preview -->
+      <div class="card glass-card">
+        <div class="card-header">
+          <div class="card-icon">📁</div>
+          <div>
+            <div class="card-title">1. Upload Image</div>
+            <div class="card-subtitle">PNG, JPEG, JPG, BMP, WEBP (Max 30 MB)</div>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="imgDropZone">
+          <input type="file" name="image" id="imgInput" accept=".png,.jpeg,.jpg,.bmp,.webp" required />
+          <span class="drop-zone-icon">🖼️</span>
+          <div class="drop-zone-text">Drag &amp; drop image here</div>
+          <div class="drop-zone-hint">or click to browse from your device</div>
+        </div>
+
+        <!-- Image Preview -->
+        <div class="preview-box" id="imgPreviewBox" style="display:none;">
+          <img id="imgPreviewEl" src="" alt="Selected image preview" />
+          <div class="img-meta-row" id="imgMetaRow"></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Settings -->
+      <div class="card glass-card">
+        <div class="card-header">
+          <div class="card-icon">⚙️</div>
+          <div>
+            <div class="card-title">2. Watermark Configuration</div>
+            <div class="card-subtitle">Configure text, ownership, and position</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="watermarkText">Watermark Text</label>
+          <input type="text" class="form-control" id="watermarkText" name="watermark_text" value="CONFIDENTIAL" required />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="ownerName">Owner Name</label>
+            <input type="text" class="form-control" id="ownerName" name="owner" value="Mohan Kumar J" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="projectId">Project ID</label>
+            <input type="text" class="form-control" id="projectId" name="project_id" value="PROJECT-001" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="positionSelect">Position</label>
+          <select class="form-control" id="positionSelect" name="position">
+            <option value="center" selected>Center (Default)</option>
+            <option value="top-left">Top Left</option>
+            <option value="top-center">Top Center</option>
+            <option value="top-right">Top Right</option>
+            <option value="bottom-left">Bottom Left</option>
+            <option value="bottom-center">Bottom Center</option>
+            <option value="bottom-right">Bottom Right</option>
+          </select>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="opacityInput">Opacity (<span id="opacityVal">30</span>%)</label>
+            <input type="range" class="form-range" id="opacityInput" name="opacity" min="10" max="100" value="30" oninput="document.getElementById('opacityVal').textContent=this.value" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fontSizeInput">Font Size (px)</label>
+            <input type="number" class="form-control" id="fontSizeInput" name="font_size" min="12" max="100" value="28" />
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="applyBtn">
+          APPLY WATERMARK
+        </button>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Progress Bar -->
+  <div class="progress-card" id="imgProgressCard" style="display:none;">
+    <div class="progress-label">Processing image and embedding metadata...</div>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="imgProgressBar"></div></div>
+  </div>
+
+  <!-- Error Alert -->
+  <div class="alert alert-danger" id="imgErrorAlert" style="display:none;"></div>
+
+  <!-- Output Result Card -->
+  <div class="card glass-card result-card" id="imgResultCard" style="display:none; margin-top:1.5rem;">
+    <div class="card-header">
+      <div class="card-icon">✅</div>
+      <div>
+        <div class="card-title">Protection Applied Successfully</div>
+        <div class="card-subtitle">Real watermarked image generated with embedded metadata and SHA-256 fingerprint</div>
+      </div>
+    </div>
+
+    <div class="grid-2col">
+      <div>
+        <table class="data-table">
+          <tr><td>Watermark ID</td><td><span class="badge badge-cyan" id="resWmid">—</span></td></tr>
+          <tr><td>Owner</td><td id="resOwner">—</td></tr>
+          <tr><td>Project ID</td><td id="resProj">—</td></tr>
+          <tr><td>Created At</td><td id="resCreated">—</td></tr>
+          <tr><td>Content Type</td><td><span class="badge badge-info">Image</span></td></tr>
+          <tr><td>Hash Algorithm</td><td><span class="badge badge-info">SHA-256</span></td></tr>
+        </table>
+
+        <div style="margin-top:1.25rem;">
+          <div class="form-label">SHA-256 Fingerprint</div>
+          <div class="fingerprint-box" id="resSha256">—</div>
+          <div class="form-hint" style="margin-top:4px;">Unique 256-bit cryptographic fingerprint calculated dynamically.</div>
+        </div>
+      </div>
+
+      <div style="text-align:center;">
+        <div class="result-img-wrap">
+          <img id="resPreviewImg" src="" alt="Watermarked result preview" />
+        </div>
+        <div style="margin-top:1.25rem;">
+          <a href="#" id="downloadImgBtn" class="btn btn-success btn-lg btn-block" download>
+            📥 Download Watermarked Image
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

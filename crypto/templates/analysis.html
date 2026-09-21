@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Security Analysis — SecureCrypt{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-content">
+
+    <div class="page-header">
+      <h1>🔬 Security Analysis</h1>
+      <p>Upload any image to analyze its payload, capacity, and security properties.</p>
+    </div>
+
+    <form id="analyzeForm" enctype="multipart/form-data">
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <div class="card-icon">📁</div>
+          <div><div class="card-title">Upload Image for Analysis</div></div>
+        </div>
+        <div class="drop-zone" id="analyzeDropZone">
+          <input type="file" name="image" id="analyzeInput" accept=".png,.bmp,.tiff,.tif" />
+          <span class="drop-zone-icon">🔍</span>
+          <div class="drop-zone-text">Drop any PNG / BMP / TIFF image</div>
+          <div class="drop-zone-hint">Analyzes capacity and detects SecureCrypt payloads</div>
+        </div>
+        <div style="margin-top:1rem; text-align:center;">
+          <button type="submit" class="btn btn-primary" id="analyzeBtn">🔬 Analyze Image</button>
+        </div>
+      </div>
+    </form>
+
+    <div id="analyzeError" style="display:none;"></div>
+
+    <!-- Results -->
+    <div id="analyzeResults" style="display:none;">
+      <div class="two-col" style="margin-bottom:1.5rem;">
+        <!-- Image Info -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🖼️</div>
+            <div><div class="card-title">Image Information</div></div>
+          </div>
+          <table class="security-table">
+            <tr><td>Dimensions</td><td style="color:var(--cyan); font-family:monospace;" id="aWidth">—</td></tr>
+            <tr><td>Mode</td><td style="color:var(--cyan); font-family:monospace;" id="aMode">—</td></tr>
+            <tr><td>Channels</td><td style="color:var(--cyan); font-family:monospace;" id="aChannels">—</td></tr>
+            <tr><td>File Size</td><td style="color:var(--cyan); font-family:monospace;" id="aFileSize">—</td></tr>
+          </table>
+        </div>
+
+        <!-- Capacity -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📊</div>
+            <div><div class="card-title">Embedding Capacity</div></div>
+          </div>
+          <table class="security-table">
+            <tr><td>Raw Capacity</td><td style="color:var(--cyan); font-family:monospace;" id="aRawBytes">—</td></tr>
+            <tr><td>Usable Capacity</td><td style="color:var(--cyan); font-family:monospace;" id="aUsableKb">—</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payload detection -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <div class="card-icon">🔍</div>
+          <div><div class="card-title">Payload Detection</div></div>
+        </div>
+        <div id="aPayloadStatus" style="font-size:0.9rem; color: var(--text-secondary);"></div>
+        <div id="aFingerprintRow" style="display:none; margin-top:1rem;">
+          <div class="meta-label" style="margin-bottom:6px;">SHA-256 Fingerprint</div>
+          <div class="fingerprint" id="aFingerprint"></div>
+          <div class="form-hint" style="margin-top:6px;">SHA-256 is for display only — AES-GCM provides the actual authentication.</div>
+        </div>
+      </div>
+
+      <!-- Security analysis dashboard -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">🏅</div>
+          <div><div class="card-title">SecureCrypt Security Dashboard</div></div>
+        </div>
+        <table class="security-table">
+          <tr><td>Encryption Algorithm</td><td><span class="status-verified">✓ AES-256-GCM</span></td></tr>
+          <tr><td>Key Derivation</td><td><span class="status-verified">✓ PBKDF2-HMAC-SHA256</span></td></tr>
+          <tr><td>PBKDF2 Iterations</td><td><span class="status-verified">✓ 600,000</span></td></tr>
+          <tr><td>Random Salt</td><td><span class="status-verified">✓ 16 bytes (128-bit)</span></td></tr>
+          <tr><td>Random Nonce</td><td><span class="status-verified">✓ 12 bytes (96-bit)</span></td></tr>
+          <tr><td>Authentication Tag</td><td><span class="status-verified">✓ 16 bytes (128-bit GCM)</span></td></tr>
+          <tr><td>Steganography Method</td><td><span class="status-verified">✓ Adaptive LSB (ASEE)</span></td></tr>
+          <tr><td>Output Format</td><td><span class="status-verified">✓ PNG (Lossless)</span></td></tr>
+          <tr><td>Tamper Detection</td><td><span class="status-verified">✓ AES-GCM Auth Failure</span></td></tr>
+          <tr><td>Password Storage</td><td><span class="status-verified">✓ Never Stored</span></td></tr>
+          <tr><td>Plaintext Storage</td><td><span class="status-verified">✓ Never Stored</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

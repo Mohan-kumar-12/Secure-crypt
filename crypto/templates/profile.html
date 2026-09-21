@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Profile Settings — SecureCrypt{% endblock %}
+{% block meta_description %}Manage your SecureCrypt account settings and profile information.{% endblock %}
+
+{% block head %}
+<style>
+  .profile-page { padding: 2.5rem 1.5rem 4rem; max-width: 680px; margin: 0 auto; }
+
+  .profile-page-header {
+    display: flex; align-items: center; gap: 20px; margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem; border-bottom: 1px solid rgba(0,80,40,.1);
+  }
+
+  .profile-avatar-xl {
+    width: 72px; height: 72px; flex-shrink: 0;
+    background: linear-gradient(135deg,#166534,#15803d);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 1.5rem; font-weight: 700;
+    box-shadow: 0 4px 16px rgba(22,101,52,.25);
+  }
+
+  .profile-page-title { font-size: 1.4rem; font-weight: 800; color: #0f1f14; letter-spacing: -.03em; }
+  .profile-page-subtitle { font-size: .82rem; color: #6b7280; margin-top: 2px; }
+
+  .profile-card {
+    background: #fff; border: 1px solid rgba(0,80,40,.1);
+    border-radius: 16px; padding: 1.75rem; margin-bottom: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,60,30,.05);
+  }
+
+  .profile-card-title {
+    font-size: .78rem; font-weight: 700; color: #166534;
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .pf-field { margin-bottom: 1rem; }
+  .pf-label { display: block; font-size: .75rem; font-weight: 600; color: #374151; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
+  .pf-input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid rgba(0,80,40,.12);
+    border-radius: 10px; background: #f8faf9; color: #0f1f14;
+    font-family: 'Inter',sans-serif; font-size: .875rem; outline: none;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+  }
+  .pf-input:focus { border-color: #166534; background: #fff; box-shadow: 0 0 0 3px rgba(22,101,52,.1); }
+  .pf-input:read-only { background: #f1f5f2; color: #9ca3af; cursor: not-allowed; }
+
+  .pf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .pf-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 100px; font-size: .72rem; font-weight: 600;
+    background: rgba(22,101,52,.08); color: #166534; border: 1px solid rgba(22,101,52,.15);
+  }
+
+  .btn-save {
+    padding: 10px 24px; background: linear-gradient(135deg,#166534,#15803d);
+    color: #fff; border: none; border-radius: 10px;
+    font-family: 'Inter',sans-serif; font-size: .875rem; font-weight: 600;
+    cursor: pointer; box-shadow: 0 4px 14px rgba(22,101,52,.22);
+    transition: opacity .15s, transform .15s;
+  }
+  .btn-save:hover { opacity: .9; transform: translateY(-1px); }
+  .btn-save:active { transform: translateY(0); }
+
+  .btn-danger {
+    padding: 10px 24px; background: #fff;
+    color: #dc2626; border: 1.5px solid rgba(220,38,38,.25); border-radius: 10px;
+    font-family: 'Inter',sans-serif; font-size: .875rem; font-weight: 600;
+    cursor: pointer; transition: background .15s, border-color .15s;
+  }
+  .btn-danger:hover { background: rgba(220,38,38,.05); border-color: rgba(220,38,38,.5); }
+
+  .save-toast {
+    display: none; padding: 8px 14px; border-radius: 8px;
+    font-size: .82rem; font-weight: 500; margin-top: .75rem;
+  }
+  .save-toast.visible { display: inline-block; }
+  .save-toast.success { background: rgba(22,163,74,.08); color: #15803d; border: 1px solid rgba(22,163,74,.2); }
+
+  .provider-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid rgba(0,80,40,.07);
+  }
+  .provider-row:last-child { border-bottom: none; }
+  .provider-name { font-size: .875rem; font-weight: 600; color: #0f1f14; }
+  .provider-sub  { font-size: .75rem; color: #9ca3af; margin-top: 1px; }
+
+  @media(max-width:480px) {
+    .pf-row { grid-template-columns: 1fr; }
+    .profile-page { padding: 1.5rem 1rem 3rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page" id="profilePage">
+  <div class="profile-page-header">
+    <div class="profile-avatar-xl" id="avatarXl">?</div>
+    <div>
+      <div class="profile-page-title" id="profileHeadName">My Profile</div>
+      <div class="profile-page-subtitle" id="profileHeadEmail"></div>
+    </div>
+  </div>
+
+  <!-- Personal Info -->
+  <div class="profile-card">
+    <div class="profile-card-title">👤 Personal Information</div>
+    <div class="pf-row">
+      <div class="pf-field">
+        <label class="pf-label" for="pfFirstName">First name</label>
+        <input id="pfFirstName" type="text" class="pf-input" placeholder="First name" />
+      </div>
+      <div class="pf-field">
+        <label class="pf-label" for="pfLastName">Last name</label>
+        <input id="pfLastName" type="text" class="pf-input" placeholder="Last name" />
+      </div>
+    </div>
+    <div class="pf-field">
+      <label class="pf-label" for="pfPhone">Phone number</label>
+      <input id="pfPhone" type="tel" class="pf-input" placeholder="+91 98765 43210" />
+    </div>
+    <div class="pf-field">
+      <label class="pf-label" for="pfEmail">Email address <span class="pf-badge">✓ Verified</span></label>
+      <input id="pfEmail" type="email" class="pf-input" readonly />
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <button class="btn-save" onclick="saveProfile()">Save changes</button>
+      <span class="save-toast" id="saveToast">✅ Profile updated!</span>
+    </div>
+  </div>
+
+  <!-- Account Info -->
+  <div class="profile-card">
+    <div class="profile-card-title">🔐 Account</div>
+    <div class="provider-row">
+      <div>
+        <div class="provider-name">Sign-in method</div>
+        <div class="provider-sub" id="pfProvider">—</div>
+      </div>
+    </div>
+    <div class="provider-row">
+      <div>
+        <div class="provider-name">Member since</div>
+        <div class="provider-sub" id="pfSince">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="profile-card" style="border-color:rgba(220,38,38,.15);">
+    <div class="profile-card-title" style="color:#dc2626;">⚠️ Danger Zone</div>
+    <p style="font-size:.82rem;color:#6b7280;margin-bottom:1rem;line-height:1.55;">
+      Signing out will end your current session. All your data remains stored locally in your browser.
+    </p>
+    <button class="btn-danger" onclick="Auth.logout()">Sign out of SecureCrypt</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Require auth — redirect to login if not signed in
+  if (!Auth.requireAuth()) { /* redirected */ }
+
+  // Populate form with stored user data
+  (function loadProfile() {
+    const user = Auth.get();
+    if (!user) return;
+
+    const initials = Auth.initials(user.name);
+    document.getElementById('avatarXl').textContent      = initials;
+    document.getElementById('profileHeadName').textContent = user.name  || 'My Profile';
+    document.getElementById('profileHeadEmail').textContent = user.email || '';
+    document.getElementById('pfEmail').value              = user.email  || '';
+    document.getElementById('pfPhone').value              = user.phone  || '';
+    document.getElementById('pfProvider').textContent     = user.provider === 'google' ? '🔵 Google Account' : '📧 Email OTP';
+    document.getElementById('pfSince').textContent        = user.at ? new Date(user.at).toLocaleDateString('en-IN', { year:'numeric', month:'long', day:'numeric' }) : '—';
+
+    // Split name into first / last
+    const parts = (user.name || '').trim().split(/\s+/);
+    document.getElementById('pfFirstName').value = parts[0] || '';
+    document.getElementById('pfLastName').value  = parts.slice(1).join(' ') || '';
+  })();
+
+  function saveProfile() {
+    const firstName = document.getElementById('pfFirstName').value.trim();
+    const lastName  = document.getElementById('pfLastName').value.trim();
+    const phone     = document.getElementById('pfPhone').value.trim();
+    if (!firstName) { alert('First name is required.'); return; }
+    const name = [firstName, lastName].filter(Boolean).join(' ');
+    Auth.updateProfile({ name, phone });
+    // Update header
+    document.getElementById('profileHeadName').textContent = name;
+    document.getElementById('avatarXl').textContent = Auth.initials(name);
+    // Show saved toast
+    const t = document.getElementById('saveToast');
+    t.classList.add('visible', 'success');
+    setTimeout(() => t.classList.remove('visible', 'success'), 3000);
+  }
+</script>
+{% endblock %}

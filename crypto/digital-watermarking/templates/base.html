@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Digital Watermarking &amp; Authenticity Verification{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Protect, identify and verify digital content using visible watermarking, SHA-256 fingerprinting, and Ed25519 digital signatures.{% endblock %}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">
+        <div class="logo-icon">🛡️</div>
+        <span class="brand-name">Digital<span>Watermark</span></span>
+        <span class="module-badge">Module 2</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="/"            class="{% if request.path == '/'            %}active{% endif %}">Dashboard</a></li>
+        <li><a href="/image"       class="{% if request.path == '/image'       %}active{% endif %}">Image Watermarking</a></li>
+        <li><a href="/pdf"         class="{% if request.path == '/pdf'         %}active{% endif %}">PDF Watermarking</a></li>
+        <li><a href="/source-code" class="{% if request.path == '/source-code' %}active{% endif %}">Source Protection</a></li>
+        <li><a href="/verify"      class="btn btn-verify-nav {% if request.path == '/verify' %}active{% endif %}">🔍 Verify Content</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">🛡️ Digital Watermarking System</div>
+          <p class="footer-text">Module 2 — Content Protection &amp; Authenticity Verification System.</p>
+        </div>
+        <div class="footer-badges">
+          <span class="f-badge">SHA-256 Fingerprinting</span>
+          <span class="f-badge">Ed25519 Signatures</span>
+          <span class="f-badge">PyMuPDF Engine</span>
+          <span class="f-badge">Pillow Compositing</span>
+        </div>
+      </div>
+      <div class="footer-copy">
+        🔒 Protects Images, PDFs, and Source Code using real cryptographic hashing &amp; digital signatures.
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

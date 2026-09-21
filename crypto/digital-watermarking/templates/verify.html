@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}VERIFY DIGITAL CONTENT — Security Verification Center{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="page-header">
+    <h1>🔍 VERIFY DIGITAL CONTENT</h1>
+    <p>Upload a protected file to verify watermark metadata, file integrity (SHA-256), and cryptographic Ed25519 digital signatures.</p>
+  </div>
+
+  <!-- Verification Category Tabs -->
+  <div class="v-tab-bar">
+    <button class="v-tab-btn active" id="vTabImg" onclick="switchVerifyTab('image')">🖼️ Image Verification</button>
+    <button class="v-tab-btn"        id="vTabPdf" onclick="switchVerifyTab('pdf')">📄 PDF Verification</button>
+    <button class="v-tab-btn"        id="vTabCode" onclick="switchVerifyTab('code')">💻 Source Code Verification</button>
+  </div>
+
+  <!-- Tab 1: Image Verification -->
+  <div class="v-tab-panel active" id="vPanelImg">
+    <form id="verifyImageForm" enctype="multipart/form-data">
+      <div class="card glass-card">
+        <div class="card-header">
+          <div class="card-icon">🖼️</div>
+          <div>
+            <div class="card-title">Image Watermark &amp; Integrity Verification</div>
+            <div class="card-subtitle">Upload the watermarked image file to inspect metadata and SHA-256</div>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="vImgDropZone">
+          <input type="file" name="image" id="vImgInput" accept=".png,.jpeg,.jpg,.bmp,.webp" required />
+          <span class="drop-zone-icon">🔍</span>
+          <div class="drop-zone-text">Drop watermarked image file here</div>
+          <div class="drop-zone-hint">PNG / JPEG / BMP / WEBP</div>
+        </div>
+
+        <div class="form-group" style="margin-top:1.25rem;">
+          <label class="form-label" for="vImgRefHash">Trusted Reference SHA-256 (Optional)</label>
+          <input type="text" class="form-control" id="vImgRefHash" name="reference_hash" placeholder="Enter original reference SHA-256 hash if available..." />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="vImgBtn">
+          VERIFY IMAGE AUTHENTICITY
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tab 2: PDF Verification -->
+  <div class="v-tab-panel" id="vPanelPdf">
+    <form id="verifyPdfForm" enctype="multipart/form-data">
+      <div class="card glass-card">
+        <div class="card-header">
+          <div class="card-icon">📄</div>
+          <div>
+            <div class="card-title">PDF Document Verification</div>
+            <div class="card-subtitle">Upload the protected PDF to inspect document metadata and text layer</div>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="vPdfDropZone">
+          <input type="file" name="pdf" id="vPdfInput" accept=".pdf" required />
+          <span class="drop-zone-icon">🔍</span>
+          <div class="drop-zone-text">Drop watermarked PDF file here</div>
+          <div class="drop-zone-hint">PDF documents</div>
+        </div>
+
+        <div class="form-group" style="margin-top:1.25rem;">
+          <label class="form-label" for="vPdfRefHash">Trusted Reference SHA-256 (Optional)</label>
+          <input type="text" class="form-control" id="vPdfRefHash" name="reference_hash" placeholder="Enter original reference SHA-256 hash if available..." />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="vPdfBtn">
+          VERIFY PDF AUTHENTICITY
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tab 3: Source Code Verification -->
+  <div class="v-tab-panel" id="vPanelCode">
+    <form id="verifyCodeForm" enctype="multipart/form-data">
+      <div class="grid-2col">
+        <div class="card glass-card">
+          <div class="card-header">
+            <div class="card-icon">💻</div>
+            <div>
+              <div class="card-title">1. Upload Source Code File</div>
+              <div class="card-subtitle">Protected source file (.py, .java, .c, .js, etc.)</div>
+            </div>
+          </div>
+
+          <div class="drop-zone" id="vCodeDropZone">
+            <input type="file" name="code_file" id="vCodeInput" required />
+            <span class="drop-zone-icon">💻</span>
+            <div class="drop-zone-text">Drop protected source file here</div>
+          </div>
+        </div>
+
+        <div class="card glass-card">
+          <div class="card-header">
+            <div class="card-icon">🖋️</div>
+            <div>
+              <div class="card-title">2. Upload Signature (.sig)</div>
+              <div class="card-subtitle">Ed25519 digital signature file or hex string</div>
+            </div>
+          </div>
+
+          <div class="drop-zone" id="vSigDropZone">
+            <input type="file" name="sig_file" id="vSigInput" accept=".sig" />
+            <span class="drop-zone-icon">🖋️</span>
+            <div class="drop-zone-text">Drop .sig signature file here</div>
+          </div>
+
+          <div class="form-group" style="margin-top:1rem;">
+            <label class="form-label" for="vSigHexText">Or Paste Signature Hex String</label>
+            <input type="text" class="form-control" id="vSigHexText" name="signature_text" placeholder="Paste Ed25519 signature hex string..." />
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem;">
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="vCodeBtn">
+          VERIFY DIGITAL SIGNATURE &amp; INTEGRITY
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-card" id="vProgressCard" style="display:none;">
+    <div class="progress-label">Performing cryptographic verification checks...</div>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="vProgressBar"></div></div>
+  </div>
+
+  <!-- Error Alert -->
+  <div class="alert alert-danger" id="vErrorAlert" style="display:none;"></div>
+
+  <!-- Verification Report Result Card -->
+  <div class="card glass-card result-card" id="vResultCard" style="display:none;">
+    <div class="card-header">
+      <div class="card-icon" id="vReportIcon">🛡️</div>
+      <div>
+        <div class="card-title">SECURITY VERIFICATION REPORT</div>
+        <div class="card-subtitle">Comprehensive content authenticity and integrity audit report</div>
+      </div>
+    </div>
+
+    <!-- Final Status Banner -->
+    <div class="status-banner" id="vStatusBanner">
+      <span id="vStatusText">AUTHENTIC CONTENT</span>
+    </div>
+
+    <table class="data-table">
+      <tr><td>Content Type</td><td><span class="badge badge-info" id="vrContentType">—</span></td></tr>
+      <tr><td>Watermark Status</td><td id="vrWmStatus">—</td></tr>
+      <tr><td>Watermark ID</td><td><span class="badge badge-cyan" id="vrWmid">—</span></td></tr>
+      <tr><td>Owner</td><td id="vrOwner">—</td></tr>
+      <tr><td>Project ID</td><td id="vrProj">—</td></tr>
+      <tr id="vrSigRow" style="display:none;"><td>Ed25519 Digital Signature</td><td id="vrSigStatus">—</td></tr>
+      <tr><td>Integrity Check</td><td id="vrIntegrity">—</td></tr>
+    </table>
+
+    <div style="margin-top:1.25rem;">
+      <div class="form-label">Calculated SHA-256 Fingerprint</div>
+      <div class="fingerprint-box" id="vrSha256">—</div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function switchVerifyTab(tab) {
+    ['image','pdf','code'].forEach(t => {
+      const cap = t.charAt(0).toUpperCase() + t.slice(1);
+      document.getElementById(`vTab${cap}`).classList.toggle('active', t === tab);
+      document.getElementById(`vPanel${cap}`).classList.toggle('active', t === tab);
+    });
+    document.getElementById('vResultCard').style.display = 'none';
+    document.getElementById('vErrorAlert').style.display = 'none';
+  }
+</script>
+{% endblock %}

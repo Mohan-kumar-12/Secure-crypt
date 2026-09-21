@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}SecureCrypt — Cryptographic Image Steganography{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Hide and encrypt secret messages inside images using AES-256-GCM and adaptive LSB steganography.{% endblock %}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <!-- Auth guard: redirect to /login immediately if not authenticated -->
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script>
+    if (!Auth.requireAuth()) {
+      /* window.location.replace('/login') executed */
+    }
+  </script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="logo-icon">🔐</div>
+      <span class="brand-name">Secure<span>Crypt</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/"         class="{% if request.endpoint == 'index'         %}active{% endif %}">Dashboard</a></li>
+      <li><a href="/encrypt"  class="{% if request.endpoint == 'encrypt_page'  %}active{% endif %}">Encrypt &amp; Hide</a></li>
+      <li><a href="/decrypt"  class="{% if request.endpoint == 'decrypt_page'  %}active{% endif %}">Extract &amp; Decrypt</a></li>
+      <li><a href="/watermark/image"       class="{% if request.endpoint == 'wm_image_page' %}active{% endif %}">Image WM</a></li>
+      <li><a href="/watermark/pdf"         class="{% if request.endpoint == 'wm_pdf_page'   %}active{% endif %}">PDF WM</a></li>
+      <li><a href="/watermark/source-code" class="{% if request.endpoint == 'wm_code_page'  %}active{% endif %}">Code Sign</a></li>
+      <li><a href="/watermark/verify"      class="btn btn-verify-nav {% if request.endpoint == 'wm_verify_page' %}active{% endif %}">🔍 Verify WM</a></li>
+    </ul>
+
+    <!-- Auth area: profile dropdown (logged in) or Sign In button -->
+    <div class="nav-auth" id="navAuth">
+      <!-- Rendered by auth.js on DOMContentLoaded -->
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>SecureCrypt &mdash; Cryptographic Image Steganography &mdash; Capstone Project</p>
+    <p class="privacy-note">
+      🔒 Secret messages and passwords are processed in-memory only and are never stored by the application.
+    </p>
+  </footer>
+
+  <!-- Auth state manager (must load before app.js) -->
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+
+  <!-- Render nav auth area based on login state -->
+  <script>
+    (function renderNavAuth() {
+      const el  = document.getElementById('navAuth');
+      const user = Auth.get();
+
+      if (!user) {
+        el.innerHTML = `
+          <a href="/login" class="nav-signin">Sign In</a>`;
+        return;
+      }
+
+      const initials = Auth.initials(user.name);
+      const name     = user.name || user.email;
+
+      el.innerHTML = `
+        <div class="nav-profile" id="navProfile">
+          <button class="profile-trigger" id="profileTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+            <div class="profile-avatar">${initials}</div>
+            <span class="profile-name">${name.split(' ')[0]}</span>
+            <svg class="profile-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 6l4 4 4-4"/>
+            </svg>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dropdown-header">
+              <div class="profile-avatar-lg">${initials}</div>
+              <div>
+                <div class="profile-fullname">${name}</div>
+                <div class="profile-email">${user.email}</div>
+              </div>
+            </div>
+            <div class="profile-dropdown-divider"></div>
+            <a href="/profile" class="profile-dropdown-item">
+              <span>⚙️</span> Profile Settings
+            </a>
+            <button class="profile-dropdown-item profile-logout" onclick="Auth.logout()">
+              <span>🚪</span> Sign Out
+            </button>
+          </div>
+        </div>`;
+
+      // Toggle dropdown
+      const trigger  = document.getElementById('profileTrigger');
+      const dropdown = document.getElementById('profileDropdown');
+      trigger.addEventListener('click', () => {
+        const open = dropdown.classList.toggle('open');
+        trigger.setAttribute('aria-expanded', open);
+      });
+      // Close on outside click
+      document.addEventListener('click', e => {
+        if (!document.getElementById('navProfile').contains(e.target)) {
+          dropdown.classList.remove('open');
+          trigger.setAttribute('aria-expanded', false);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

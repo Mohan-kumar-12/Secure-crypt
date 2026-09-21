@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% block title %}Encrypt &amp; Hide — SecureCrypt{% endblock %}
+{% block meta_description %}Upload an image and encrypt a secret message using AES-256-GCM and adaptive LSB steganography.{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-content">
+
+    <div class="page-header">
+      <h1>🔐 Encrypt &amp; Hide</h1>
+      <p>Upload a cover image, enter your secret message and password. SecureCrypt will encrypt and embed using AES-256-GCM + ASEE.</p>
+    </div>
+
+    <form id="encryptForm" enctype="multipart/form-data">
+
+      <div class="two-col">
+        <!-- Left column -->
+        <div>
+          <!-- Step 1: Image Upload -->
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+              <div class="card-icon">🖼️</div>
+              <div>
+                <div class="card-title">Step 1 — Upload Cover Image</div>
+                <div class="card-subtitle">PNG, BMP, or TIFF (lossless formats only)</div>
+              </div>
+            </div>
+
+            <div class="drop-zone" id="coverDropZone">
+              <input type="file" name="image" id="coverImageInput" accept=".png,.bmp,.tiff,.tif" required />
+              <span class="drop-zone-icon">📁</span>
+              <div class="drop-zone-text">Drag &amp; drop your image here</div>
+              <div class="drop-zone-hint">or click to browse &bull; PNG / BMP / TIFF</div>
+            </div>
+
+            <!-- Image preview -->
+            <div class="image-preview-wrapper" id="coverPreviewWrapper">
+              <img id="coverPreviewImg" class="image-preview" src="" alt="Cover image preview" />
+              <div class="image-meta" id="coverMeta">
+                <div class="meta-item">
+                  <div class="meta-label">Width</div>
+                  <div class="meta-value" id="metaWidth">—</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">Height</div>
+                  <div class="meta-value" id="metaHeight">—</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">Channels</div>
+                  <div class="meta-value" id="metaChannels">—</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">Capacity</div>
+                  <div class="meta-value" id="metaCapacity">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Secret Message -->
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+              <div class="card-icon">📝</div>
+              <div>
+                <div class="card-title">Step 2 — Secret Message</div>
+                <div class="card-subtitle">Enter the text to hide and encrypt</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="secretMessage">Secret Message</label>
+              <textarea
+                class="form-control"
+                id="secretMessage"
+                name="message"
+                placeholder="Enter your confidential message here..."
+                required
+                rows="6"
+              ></textarea>
+              <div class="char-counter">
+                <span id="charCount">0 characters</span>
+                <span id="payloadEst">Estimated payload: 0 B</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div>
+          <!-- Step 3: Password -->
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+              <div class="card-icon">🔑</div>
+              <div>
+                <div class="card-title">Step 3 — Encryption Password</div>
+                <div class="card-subtitle">Min 8 characters — never stored</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="password">Password</label>
+              <div class="input-group">
+                <input class="form-control" type="password" id="password" name="password"
+                       placeholder="Enter a strong password" required autocomplete="new-password" />
+                <button type="button" class="toggle-btn" onclick="togglePassword('password')">👁️</button>
+              </div>
+              <div class="strength-bar">
+                <div class="strength-bar-fill" id="strengthFill"></div>
+              </div>
+              <div class="strength-label" id="strengthLabel" style="color: var(--text-muted);"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="confirm">Confirm Password</label>
+              <div class="input-group">
+                <input class="form-control" type="password" id="confirm" name="confirm"
+                       placeholder="Re-enter your password" required autocomplete="new-password" />
+                <button type="button" class="toggle-btn" onclick="togglePassword('confirm')">👁️</button>
+              </div>
+              <div class="form-hint" id="confirmHint"></div>
+            </div>
+
+            <!-- Password security notice -->
+            <div class="form-hint" style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(99,102,241,0.08); border-radius: 8px; border-left: 3px solid var(--indigo-400); line-height: 1.5;">
+              🔒 Your password is never stored or embedded in the image. It is used only to derive the cryptographic key required to recover the protected session key.
+            </div>
+          </div>
+
+          <!-- Security info card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">🛡️</div>
+              <div><div class="card-title">Security Configuration</div></div>
+            </div>
+            <table class="security-table">
+              <tr><td>Message Encryption</td><td><span class="badge badge-indigo">AES-256-GCM</span></td></tr>
+              <tr><td>Key Protection</td><td><span class="badge badge-indigo">AES-256-GCM</span></td></tr>
+              <tr><td>Key Derivation</td><td><span class="badge badge-indigo">PBKDF2-SHA256</span></td></tr>
+              <tr><td>Iterations</td><td><span style="font-family: monospace; color: var(--indigo-400); font-size:0.82rem;">600,000</span></td></tr>
+              <tr><td>Session Key</td><td><span class="badge badge-indigo">Random 256-bit</span></td></tr>
+              <tr><td>Steganography</td><td><span class="badge badge-indigo">ASEE Adaptive LSB</span></td></tr>
+              <tr><td>Output Format</td><td><span class="badge badge-indigo">PNG (Lossless)</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <button type="submit" class="btn btn-primary btn-lg" id="encryptBtn">
+          Encrypt &amp; Hide
+        </button>
+      </div>
+    </form>
+
+    <!-- Progress -->
+    <div class="progress-steps" id="progressSteps">
+      <h4>Processing</h4>
+      <div class="step-item" id="step1"><span class="step-dot"></span><span class="step-icon">🖼️</span> Analyzing cover image...</div>
+      <div class="step-item" id="step2"><span class="step-dot"></span><span class="step-icon">🔑</span> Deriving password key (PBKDF2-HMAC-SHA256)...</div>
+      <div class="step-item" id="step3"><span class="step-dot"></span><span class="step-icon">🎲</span> Generating random session key...</div>
+      <div class="step-item" id="step4"><span class="step-dot"></span><span class="step-icon">🔐</span> Encrypting message (AES-256-GCM)...</div>
+      <div class="step-item" id="step5"><span class="step-dot"></span><span class="step-icon">🔒</span> Protecting session key (AES-256-GCM key wrapping)...</div>
+      <div class="step-item" id="step6"><span class="step-dot"></span><span class="step-icon">🎨</span> Selecting embedding pixels (ASEE)...</div>
+      <div class="step-item" id="step7"><span class="step-dot"></span><span class="step-icon">📦</span> Embedding encrypted payload...</div>
+      <div class="step-item" id="step8"><span class="step-dot"></span><span class="step-icon">📊</span> Calculating image metrics...</div>
+      <div class="step-item" id="step9"><span class="step-dot"></span><span class="step-icon">✅</span> Generating secure stego image...</div>
+    </div>
+
+    <!-- Error alert -->
+    <div class="alert alert-danger" id="encryptError" style="display:none;">
+      <span class="alert-icon">⚠️</span>
+      <span id="encryptErrorMsg"></span>
+    </div>
+
+    <!-- Result section -->
+    <div class="result-section" id="resultSection">
+      <div class="divider"></div>
+      <div class="section-header">
+        <h2>✅ Encryption Successful</h2>
+        <p>Your secret message has been encrypted and securely embedded into the image.</p>
+      </div>
+
+      <!-- Image comparison -->
+      <div class="result-images" style="margin-bottom: 1.5rem;">
+        <div class="result-image-card">
+          <img id="originalThumb" src="" alt="Original cover image" />
+          <div class="result-image-label">Original Image</div>
+        </div>
+        <div class="result-image-card">
+          <img id="stegoThumb" src="" alt="Stego image" />
+          <div class="result-image-label">Stego Image</div>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+          <div class="card-icon">📊</div>
+          <div><div class="card-title">Image Quality Metrics</div><div class="card-subtitle">Higher PSNR and SSIM → less visible distortion</div></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value" id="mseVal">—</div>
+            <div class="metric-label">MSE</div>
+            <div class="metric-hint">Mean Squared Error (lower is better)</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="psnrVal">— <small style="font-size:0.9rem;">dB</small></div>
+            <div class="metric-label">PSNR</div>
+            <div class="metric-hint">&gt;40 dB indicates excellent quality</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="ssimVal">—</div>
+            <div class="metric-label">SSIM</div>
+            <div class="metric-hint">1.0 = structurally identical</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payload analysis -->
+      <div class="two-col" style="margin-bottom: 1.5rem;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📦</div>
+            <div><div class="card-title">Payload Analysis</div></div>
+          </div>
+          <table class="security-table">
+            <tr><td>Message Size</td><td style="color:var(--indigo-400); font-family:monospace;" id="msgSizeDisplay">—</td></tr>
+            <tr><td>Encrypted Payload</td><td style="color:var(--indigo-400); font-family:monospace;" id="payloadSizeDisplay">—</td></tr>
+            <tr><td>Image Capacity</td><td style="color:var(--indigo-400); font-family:monospace;" id="capacityDisplay">—</td></tr>
+            <tr><td>Capacity Used</td><td style="color:var(--indigo-400); font-family:monospace;" id="pctUsedDisplay">—</td></tr>
+            <tr><td>Embedding Density</td><td id="densityDisplay">—</td></tr>
+          </table>
+          <div style="margin-top: 1rem;">
+            <div class="meta-label">Embedding Usage</div>
+            <div class="progress-bar-track" style="margin-top:6px;">
+              <div class="progress-bar-fill" id="embeddingBar" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🏅</div>
+            <div><div class="card-title">Security Analysis</div></div>
+          </div>
+          <table class="security-table">
+            <tr><td>Message Encryption</td><td><span class="status-verified">✓ AES-256-GCM</span></td></tr>
+            <tr><td>Key Protection</td><td><span class="status-verified">✓ AES-256-GCM</span></td></tr>
+            <tr><td>Key Derivation</td><td><span class="status-verified">✓ PBKDF2-SHA256</span></td></tr>
+            <tr><td>Session Key</td><td><span class="status-verified">✓ Random 256-bit</span></td></tr>
+            <tr><td>Steganography</td><td><span class="status-verified">✓ ASEE Adaptive LSB</span></td></tr>
+            <tr><td>Authentication</td><td><span class="status-verified">✓ GCM Auth Tag (×2)</span></td></tr>
+            <tr><td>Integrity</td><td><span class="status-verified">✓ Enabled</span></td></tr>
+            <tr><td>Password Stored</td><td><span class="status-verified">✓ Never Stored</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Converted Ciphertext Password Display -->
+      <div class="card" style="margin-bottom: 1.5rem; border: 2px solid var(--indigo-400); background: rgba(99,102,241,0.05);">
+        <div class="card-header">
+          <div class="card-icon">🔑</div>
+          <div>
+            <div class="card-title" style="color: var(--indigo-400); font-weight:700;">Decryption Password (Converted Ciphertext / Numbers)</div>
+            <div class="card-subtitle">Your password was converted into ciphertext and stored in the image. Use this ciphertext/numbers to decrypt.</div>
+          </div>
+          <button type="button" onclick="copyPasswordCiphertext()" class="btn btn-secondary" style="margin-left:auto; padding: 8px 16px; font-size:0.85rem;">
+            📋 Copy Ciphertext
+          </button>
+        </div>
+        <div class="fingerprint" id="passwordCiphertextDisplay" style="font-size: 1.1rem; color: #38bdf8; font-weight: bold; letter-spacing: 1px;">—</div>
+      </div>
+
+      <!-- Password Security Panel -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+          <div class="card-icon">🔐</div>
+          <div>
+            <div class="card-title">Password Security</div>
+            <div class="card-subtitle">Cryptographic key management summary — no actual keys are displayed</div>
+          </div>
+        </div>
+        <table class="security-table">
+          <tr><td>Password Storage</td><td><span class="status-verified">✓ Never Stored</span></td></tr>
+          <tr><td>Key Derivation</td><td><span class="status-verified">✓ PBKDF2-HMAC-SHA256</span></td></tr>
+          <tr><td>Salt</td><td><span class="status-verified">✓ Random (Generated)</span></td></tr>
+          <tr><td>Session Key</td><td><span class="status-verified">✓ Random (Generated)</span></td></tr>
+          <tr><td>Key Protection</td><td><span class="status-verified">✓ AES-256-GCM (Key Wrapping)</span></td></tr>
+          <tr><td>Message Encryption</td><td><span class="status-verified">✓ AES-256-GCM</span></td></tr>
+        </table>
+      </div>
+
+      <!-- SHA-256 fingerprint -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+          <div class="card-icon">🔍</div>
+          <div>
+            <div class="card-title">Payload SHA-256 Fingerprint</div>
+            <div class="card-subtitle">Cryptographic fingerprint for analysis only — authentication is provided by AES-GCM</div>
+          </div>
+        </div>
+        <div class="fingerprint" id="sha256Display">—</div>
+      </div>
+
+      <!-- Download -->
+      <div style="text-align:center;">
+        <a href="#" id="downloadBtn" class="btn btn-success btn-lg" download="securecrypt_stego.png">
+          Download Stego Image
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

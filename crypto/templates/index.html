@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}SecureCrypt — Hide. Encrypt. Protect.{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">🛡️ AES-256-GCM • Adaptive LSB • SHA-256 • Ed25519 Signatures</div>
+    <h1>SecureCrypt &amp; Digital Watermarking</h1>
+    <p>
+      Complete security suite providing Cryptographic Image Steganography, Digital Watermarking,
+      SHA-256 File Fingerprinting, and Ed25519 Digital Signatures for Images, PDFs, and Source Code.
+    </p>
+    <div class="hero-actions">
+      <a href="/encrypt" class="btn btn-primary btn-lg">🔒 Encrypt &amp; Hide Message</a>
+      <a href="/watermark/verify" class="btn btn-secondary btn-lg" style="border-color:var(--indigo-600);color:var(--indigo-600);">🔍 Verify Digital Watermark</a>
+    </div>
+  </div>
+</section>
+
+<!-- Dashboard Main Navigation Grid -->
+<section style="padding: 2rem 0 3rem;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <h2 style="font-size:1.6rem;font-weight:800;color:var(--indigo-600);">🛡️ SYSTEM MODULES &amp; NAVIGATION</h2>
+      <p style="font-size:0.9rem;color:var(--text-muted);">Select any security module below to jump directly to protection and verification tools</p>
+    </div>
+
+    <div class="features-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+      
+      <!-- Card 1: Encrypt & Hide -->
+      <a href="/encrypt" style="text-decoration:none; color:inherit;">
+        <div class="feature-card" style="cursor:pointer; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <span class="icon">🔒</span>
+            <h3>Encrypt &amp; Hide Message</h3>
+            <p>AES-256-GCM authenticated encryption embedded into PNG images with Adaptive LSB and password ciphertext.</p>
+          </div>
+          <div class="btn btn-primary btn-block" style="margin-top:1.25rem;">Go to Encrypt &amp; Hide →</div>
+        </div>
+      </a>
+
+      <!-- Card 2: Extract & Decrypt -->
+      <a href="/decrypt" style="text-decoration:none; color:inherit;">
+        <div class="feature-card" style="cursor:pointer; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <span class="icon">🔓</span>
+            <h3>Extract &amp; Decrypt</h3>
+            <p>Extract hidden payload from stego images, verify password ciphertext, and authenticate message integrity.</p>
+          </div>
+          <div class="btn btn-secondary btn-block" style="margin-top:1.25rem; border-color:var(--indigo-600); color:var(--indigo-600);">Go to Extract &amp; Decrypt →</div>
+        </div>
+      </a>
+
+      <!-- Card 3: Image Watermarking -->
+      <a href="/watermark/image" style="text-decoration:none; color:inherit;">
+        <div class="feature-card" style="cursor:pointer; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <span class="icon">🖼️</span>
+            <h3>Image Watermarking</h3>
+            <p>Apply visible text overlays with custom opacity, position, PNGInfo/EXIF metadata, and SHA-256 digests.</p>
+          </div>
+          <div class="btn btn-primary btn-block" style="margin-top:1.25rem;">Open Image WM →</div>
+        </div>
+      </a>
+
+      <!-- Card 4: PDF Watermarking -->
+      <a href="/watermark/pdf" style="text-decoration:none; color:inherit;">
+        <div class="feature-card" style="cursor:pointer; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <span class="icon">📄</span>
+            <h3>PDF Watermarking</h3>
+            <p>Watermark multi-page PDFs using PyMuPDF direct layer drawing and document metadata storage.</p>
+          </div>
+          <div class="btn btn-primary btn-block" style="margin-top:1.25rem;">Open PDF WM →</div>
+        </div>
+      </a>
+
+      <!-- Card 5: Source Code Protection -->
+      <a href="/watermark/source-code" style="text-decoration:none; color:inherit;">
+        <div class="feature-card" style="cursor:pointer; height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <span class="icon">💻</span>
+            <h3>Source Code Protection</h3>
+            <p>Insert comment protection headers and generate Ed25519 digital signatures (.sig files).</p>
+          </div>
+          <div class="btn btn-primary btn-block" style="margin-top:1.25rem;">Open Code Sign →</div>
+        </div>
+      </a>
+
+      <!-- Card 6: Verification Center -->
+      <a href="/watermark/verify" style="text-decoration:none; color:inherit;">
+        <div class="feature-card" style="cursor:pointer; height:100%; display:flex; flex-direction:column; justify-content:space-between; border-color:var(--indigo-600);">
+          <div>
+            <span class="icon">🔍</span>
+            <h3>Verification Center</h3>
+            <p>Audit watermarks, SHA-256 digests, and verify Ed25519 digital signatures with tamper detection.</p>
+          </div>
+          <div class="btn btn-secondary btn-block" style="margin-top:1.25rem; background:rgba(22,101,52,0.1); color:var(--indigo-600); border-color:var(--indigo-600);">Open Verification Center →</div>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- How it works -->
+    <div class="card" style="margin-top: 2.5rem;">
+      <div class="card-header">
+        <div class="card-icon">⚙️</div>
+        <div>
+          <div class="card-title">How It Works</div>
+          <div class="card-subtitle">Cryptographic Security &amp; Digital Authenticity</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h3 style="color: var(--indigo-600); font-size: 0.78rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;">Steganography Flow</h3>
+          <div class="concept-flow" style="flex-direction: column; align-items: flex-start;">
+            <div class="concept-box" style="width: 100%;">📝 Secret Text + Password</div>
+            <div class="concept-arrow">↓</div>
+            <div class="concept-box" style="width: 100%;">🔑 PBKDF2 Key Derivation</div>
+            <div class="concept-arrow">↓</div>
+            <div class="concept-box" style="width: 100%;">🔐 AES-256-GCM Encryption &amp; Key Wrap</div>
+            <div class="concept-arrow">↓</div>
+            <div class="concept-box" style="width: 100%;">🎨 ASEE LSB Embedding + Password Ciphertext</div>
+            <div class="concept-arrow">↓</div>
+            <div class="concept-box" style="width: 100%; border-color: var(--success-border); color: var(--success);">📥 Stego Image Output</div>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="color: var(--indigo-600); font-size: 0.78rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;">Watermarking &amp; Signing Flow</h3>
+          <div class="concept-flow" style="flex-direction: column; align-items: flex-start;">
+            <div class="concept-box" style="width: 100%;">📁 File Upload (Image / PDF / Code)</div>
+            <div class="concept-arrow">↓</div>
+            <div class="concept-box" style="width: 100%;">🖼️ Visible Overlay / PyMuPDF / Comment Header</div>
+            <div class="concept-arrow">↓</div>
+            <div class="concept-box" style="width: 100%;">🖋️ Ed25519 Digital Signing (.sig)</div>
+            <div class="concept-arrow">↓</div>
+            <div class="concept-box" style="width: 100%;">🏷️ Metadata Embedding &amp; SHA-256 Digest</div>
+            <div class="concept-arrow">↓</div>
+            <div class="concept-box" style="width: 100%; border-color: var(--success-border); color: var(--success);">🔍 Authenticity Verification</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security overview -->
+    <div class="card" style="margin-top: 1.5rem;">
+      <div class="card-header">
+        <div class="card-icon">🏅</div>
+        <div>
+          <div class="card-title">Security Guarantees</div>
+          <div class="card-subtitle">What this unified system guarantees</div>
+        </div>
+      </div>
+      <table class="security-table">
+        <tr>
+          <td>Confidentiality</td>
+          <td><span class="status-verified">✓ AES-256-GCM ciphertext</span></td>
+        </tr>
+        <tr>
+          <td>Integrity</td>
+          <td><span class="status-verified">✓ GCM Authentication Tag + SHA-256</span></td>
+        </tr>
+        <tr>
+          <td>Digital Authenticity</td>
+          <td><span class="status-verified">✓ Ed25519 Asymmetric Digital Signatures</span></td>
+        </tr>
+        <tr>
+          <td>Tamper Detection</td>
+          <td><span class="status-verified">✓ Automatic Auth Tag Invalidation</span></td>
+        </tr>
+        <tr>
+          <td>Stego Concealment</td>
+          <td><span class="status-verified">✓ Texture-Aware Adaptive LSB</span></td>
+        </tr>
+        <tr>
+          <td>Password Security</td>
+          <td><span class="status-verified">✓ Never Stored (Password Ciphertext Used)</span></td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

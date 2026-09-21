@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}DIGITAL WATERMARKING — Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Hero Banner -->
+  <section class="hero-section">
+    <div class="hero-badge">🛡️ Content Authenticity &amp; Integrity Framework</div>
+    <h1 class="hero-title">DIGITAL WATERMARKING</h1>
+    <p class="hero-subtitle">Protect, identify and verify your digital content.</p>
+    <div class="hero-actions">
+      <a href="/verify" class="btn btn-primary btn-lg">
+        🔍 Verify Protected Content
+      </a>
+      <a href="/api/public-key" class="btn btn-outline btn-lg" download="ed25519_public_key.pem">
+        🔑 Download Public Verification Key
+      </a>
+    </div>
+  </section>
+
+  <!-- Main 3 Module Feature Cards -->
+  <section class="cards-grid">
+
+    <!-- Card 1: IMAGE WATERMARKING -->
+    <div class="dash-card">
+      <div class="card-badge">PNG • JPG • BMP • WEBP</div>
+      <div class="card-icon-wrap">🖼️</div>
+      <h2 class="card-header-title">IMAGE WATERMARKING</h2>
+      <p class="card-desc">Protect digital images with visual watermark overlays, custom positioning, opacity control, dynamic Watermark IDs, and embedded metadata.</p>
+      <div class="card-features">
+        <span>✓ Real Pillow Overlay</span>
+        <span>✓ PNGInfo &amp; EXIF Metadata</span>
+        <span>✓ SHA-256 Fingerprint</span>
+      </div>
+      <a href="/image" class="btn btn-card btn-block">Open Image Watermarking</a>
+    </div>
+
+    <!-- Card 2: PDF WATERMARKING -->
+    <div class="dash-card">
+      <div class="card-badge">PDF Documents</div>
+      <div class="card-icon-wrap">📄</div>
+      <h2 class="card-header-title">PDF WATERMARKING</h2>
+      <p class="card-desc">Protect multi-page PDF documents using PyMuPDF page watermarking. Select all pages or specific ranges while preserving text quality.</p>
+      <div class="card-features">
+        <span>✓ PyMuPDF Direct Layer</span>
+        <span>✓ PDF Metadata Embedding</span>
+        <span>✓ Page Selection Support</span>
+      </div>
+      <a href="/pdf" class="btn btn-card btn-block">Open PDF Watermarking</a>
+    </div>
+
+    <!-- Card 3: SOURCE CODE PROTECTION -->
+    <div class="dash-card">
+      <div class="card-badge">Python • Java • C/C++ • JS • HTML</div>
+      <div class="card-icon-wrap">💻</div>
+      <h2 class="card-header-title">SOURCE CODE PROTECTION</h2>
+      <p class="card-desc">Authenticate source code files using language-aware comment protection headers combined with cryptographic Ed25519 digital signatures.</p>
+      <div class="card-features">
+        <span>✓ Comment Syntax Headers</span>
+        <span>✓ Ed25519 Cryptographic Signature</span>
+        <span>✓ Tamper Detection</span>
+      </div>
+      <a href="/source-code" class="btn btn-card btn-block">Open Source Protection</a>
+    </div>
+
+  </section>
+
+  <!-- Security Concept Explainer Section -->
+  <section class="info-section">
+    <div class="card glass-card">
+      <div class="card-header">
+        <div class="card-icon">⚡</div>
+        <div>
+          <div class="card-title">Three-Tier Authenticity Architecture</div>
+          <div class="card-subtitle">Clear distinction between Watermarking, Fingerprinting, and Digital Signatures</div>
+        </div>
+      </div>
+      <div class="three-col-grid">
+
+        <div class="tier-box">
+          <div class="tier-icon">🏷️</div>
+          <h3>1. Digital Watermarking</h3>
+          <p>Visible marking and embedded metadata used for visual identification and ownership provenance. Generated dynamically with unique Watermark IDs.</p>
+        </div>
+
+        <div class="tier-box">
+          <div class="tier-icon">🔑</div>
+          <h3>2. SHA-256 Fingerprinting</h3>
+          <p>Cryptographic hashing that generates a unique 256-bit hash fingerprint for every protected file. Used for verifying exact file integrity.</p>
+        </div>
+
+        <div class="tier-box">
+          <div class="tier-icon">🖋️</div>
+          <h3>3. Ed25519 Signatures</h3>
+          <p>Asymmetric digital signatures using server-side private key. Provides non-repudiation and detects unauthorized code modification.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

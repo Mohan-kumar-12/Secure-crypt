@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}About — SecureCrypt{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-content">
+
+    <div class="page-header">
+      <h1>📚 About SecureCrypt</h1>
+      <p>Understanding the cryptography and steganography powering this system.</p>
+    </div>
+
+    <div class="two-col">
+      <div>
+
+        <div class="about-section card" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <div class="card-icon">🔐</div>
+            <div><div class="card-title">What is Cryptography?</div></div>
+          </div>
+          <div class="about-section" style="margin:0;">
+            <p>
+              Cryptography is the science of <strong style="color:var(--text-primary);">protecting the content</strong> of information.
+              It transforms readable plaintext into unreadable ciphertext using a mathematical algorithm and a key.
+              Without the correct key, the ciphertext is computationally infeasible to reverse.
+            </p>
+            <p>
+              SecureCrypt uses <strong style="color:var(--cyan);">AES-256-GCM</strong> — the Advanced Encryption Standard
+              in Galois/Counter Mode with a 256-bit key. GCM provides:
+            </p>
+            <ul style="list-style:none; margin: 0.75rem 0;">
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">🔒 <strong style="color:var(--text-primary);">Confidentiality</strong> — data cannot be read without the key</li>
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">✅ <strong style="color:var(--text-primary);">Integrity</strong> — any modification is detected</li>
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">🏅 <strong style="color:var(--text-primary);">Authenticity</strong> — the ciphertext cannot be forged</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="about-section card" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <div class="card-icon">🎨</div>
+            <div><div class="card-title">What is Steganography?</div></div>
+          </div>
+          <div class="about-section" style="margin:0;">
+            <p>
+              Steganography is the science of <strong style="color:var(--text-primary);">hiding the existence</strong> of information.
+              Unlike cryptography which obscures content, steganography conceals the fact that a message exists at all.
+            </p>
+            <p>
+              SecureCrypt uses <strong style="color:var(--cyan);">Least Significant Bit (LSB)</strong> steganography:
+              the least significant bit of each pixel channel value is replaced with a bit from the payload.
+              This 1-bit change is imperceptible to the human eye but can carry a full encrypted message.
+            </p>
+          </div>
+        </div>
+
+        <div class="about-section card">
+          <div class="card-header">
+            <div class="card-icon">⚡</div>
+            <div><div class="card-title">Why Combine Them?</div></div>
+          </div>
+          <div class="about-section" style="margin:0;">
+            <div class="concept-flow" style="margin-bottom:1rem;">
+              <div class="concept-box">🔐 Cryptography</div>
+              <div class="concept-arrow">+</div>
+              <div class="concept-box">🎨 Steganography</div>
+              <div class="concept-arrow">=</div>
+              <div class="concept-box" style="border-color:rgba(16,217,142,0.4); color:var(--success);">🛡️ Dual-Layer Security</div>
+            </div>
+            <p>
+              Cryptography alone protects what the message says — but an attacker knows <em>a secret message exists</em>.
+              Steganography alone hides that a message exists — but if discovered, it's readable.
+            </p>
+            <p>
+              Combined: an attacker cannot read the message (AES-256-GCM), and ideally does not know
+              a message is present (LSB steganography). This provides <strong style="color:var(--text-primary);">confidentiality + concealment</strong>.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <div>
+
+        <div class="about-section card" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <div class="card-icon">🔑</div>
+            <div><div class="card-title">PBKDF2 — Key Derivation</div></div>
+          </div>
+          <div class="about-section" style="margin:0;">
+            <p>
+              Passwords are rarely suitable as direct cryptographic keys (too short, predictable patterns).
+              <strong style="color:var(--cyan);">PBKDF2-HMAC-SHA256</strong> (Password-Based Key Derivation Function 2)
+              solves this by:
+            </p>
+            <ul style="list-style:none; margin: 0.75rem 0;">
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">🎲 Adding a random <strong style="color:var(--text-primary);">salt</strong> to prevent rainbow table attacks</li>
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">⏱️ Applying <strong style="color:var(--text-primary);">600,000 iterations</strong> to slow brute-force attacks</li>
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">📏 Stretching any password to a precise <strong style="color:var(--text-primary);">256-bit AES key</strong></li>
+            </ul>
+            <div class="concept-flow" style="flex-direction:column; align-items:flex-start;">
+              <div class="concept-box" style="width:100%; font-size:0.8rem;">Password + Random Salt (16 bytes)</div>
+              <div class="concept-arrow" style="margin-left:12px;">↓ PBKDF2-HMAC-SHA256 × 600,000</div>
+              <div class="concept-box" style="width:100%; font-size:0.8rem; border-color:rgba(0,212,255,0.4);">32-byte AES-256 Key</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-section card" style="margin-bottom:1.5rem;">
+          <div class="card-header">
+            <div class="card-icon">🎨</div>
+            <div><div class="card-title">Adaptive LSB — ASEE Engine</div></div>
+          </div>
+          <div class="about-section" style="margin:0;">
+            <p>
+              Standard LSB steganography embeds data sequentially from pixel 0. This can produce
+              detectable patterns in smooth regions. SecureCrypt's
+              <strong style="color:var(--cyan);">Adaptive Secure Embedding Engine (ASEE)</strong> improves this by:
+            </p>
+            <ul style="list-style:none; margin: 0.75rem 0;">
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">📊 Computing a <strong style="color:var(--text-primary);">Laplacian texture map</strong> of the image</li>
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">🎯 Ranking pixels by <strong style="color:var(--text-primary);">suitability score</strong> (high texture = more suitable)</li>
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">📍 Embedding in <strong style="color:var(--text-primary);">textured/edge regions</strong> where LSB changes are least visible</li>
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">🔄 Fully <strong style="color:var(--text-primary);">deterministic</strong> — receiver reproduces the same embedding locations</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="about-section card">
+          <div class="card-header">
+            <div class="card-icon">🚨</div>
+            <div><div class="card-title">Tamper Detection</div></div>
+          </div>
+          <div class="about-section" style="margin:0;">
+            <p>
+              AES-GCM includes a <strong style="color:var(--cyan);">128-bit authentication tag</strong> computed during encryption.
+              During decryption, the tag is recomputed and compared:
+            </p>
+            <ul style="list-style:none; margin: 0.75rem 0;">
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">🔑 Wrong password → key mismatch → tag verification fails → BLOCKED</li>
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">🔧 Modified stego image → corrupted ciphertext → tag mismatch → BLOCKED</li>
+              <li style="padding:4px 0; color:var(--text-secondary); font-size:0.875rem;">⚠️ Both cases return the same error to avoid leaking information</li>
+            </ul>
+            <div class="alert alert-warning" style="margin-top: 0.5rem;">
+              <span class="alert-icon">ℹ️</span>
+              <span style="font-size:0.82rem;">
+                <strong>Note:</strong> SHA-256 hashes shown in the UI are for display/analysis only.
+                They do not authenticate the payload against an attacker who controls the image.
+                Actual authentication comes exclusively from the AES-GCM tag.
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

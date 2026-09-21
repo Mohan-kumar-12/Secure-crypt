@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Extract &amp; Decrypt — SecureCrypt{% endblock %}
+{% block meta_description %}Upload a stego image and enter your password to extract and decrypt the hidden message.{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-content">
+
+    <div class="page-header">
+      <h1>Extract &amp; Decrypt</h1>
+      <p>Upload the stego image and enter the password used during encryption. SecureCrypt will extract, authenticate, and decrypt the hidden message.</p>
+    </div>
+
+    <form id="decryptForm" enctype="multipart/form-data">
+      <div class="two-col">
+
+        <!-- Left: Upload + image info -->
+        <div>
+          <div class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header">
+              <div class="card-icon">🖼️</div>
+              <div>
+                <div class="card-title">Upload Stego Image</div>
+                <div class="card-subtitle">The PNG file downloaded from SecureCrypt</div>
+              </div>
+            </div>
+
+            <div class="drop-zone" id="stegoDropZone">
+              <input type="file" name="image" id="stegoImageInput" accept=".png,.bmp,.tiff,.tif" required />
+              <span class="drop-zone-icon">🔍</span>
+              <div class="drop-zone-text">Drag &amp; drop stego image here</div>
+              <div class="drop-zone-hint">or click to browse &bull; PNG / BMP / TIFF</div>
+            </div>
+
+            <div class="image-preview-wrapper" id="stegoPreviewWrapper">
+              <img id="stegoPreviewImg" class="image-preview" src="" alt="Stego image preview" />
+              <div class="image-meta">
+                <div class="meta-item">
+                  <div class="meta-label">Width</div>
+                  <div class="meta-value" id="dMetaWidth">—</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">Height</div>
+                  <div class="meta-value" id="dMetaHeight">—</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">Format</div>
+                  <div class="meta-value" id="dMetaMode">—</div>
+                </div>
+                <div class="meta-item">
+                  <div class="meta-label">File Size</div>
+                  <div class="meta-value" id="dMetaSize">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payload detection -->
+          <div class="card" id="payloadDetectionCard" style="display:none;">
+            <div class="card-header">
+              <div class="card-icon">🔍</div>
+              <div><div class="card-title">Payload Detection</div></div>
+            </div>
+            <div id="detectionStatus"></div>
+          </div>
+        </div>
+
+        <!-- Right: Password + decrypt -->
+        <div>
+          <div class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header">
+              <div class="card-icon">🔑</div>
+              <div>
+                <div class="card-title">Decryption Password (Ciphertext / Numbers)</div>
+                <div class="card-subtitle">Enter the password converted into ciphertext/numbers</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="dPassword">Ciphertext / Numerical Password</label>
+              <div class="input-group">
+                <input class="form-control" type="password" id="dPassword" name="password"
+                       placeholder="Enter password ciphertext (e.g. 8F2A-41C9-...)" required autocomplete="current-password" />
+                <button type="button" class="toggle-btn" onclick="togglePassword('dPassword')">👁️</button>
+              </div>
+            </div>
+
+            <!-- Password security notice -->
+            <div class="form-hint" style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(99,102,241,0.08); border-radius: 8px; border-left: 3px solid var(--indigo-400); line-height: 1.5;">
+              🔒 The password ciphertext stored in the image header is verified to recover the AES session key.
+            </div>
+
+            <div style="margin-top: 1rem; text-align:center;">
+              <button type="submit" class="btn btn-primary btn-lg btn-full" id="decryptBtn">
+                Extract &amp; Decrypt
+              </button>
+            </div>
+          </div>
+
+          <!-- Security note -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">🛡️</div>
+              <div><div class="card-title">Security Process (Two-Key)</div></div>
+            </div>
+            <div class="concept-flow" style="flex-direction:column; align-items:flex-start;">
+              <div class="concept-box" style="width:100%; font-size:0.8rem;">1. Extract LSB payload from image</div>
+              <div class="concept-arrow" style="margin-left:12px;">↓</div>
+              <div class="concept-box" style="width:100%; font-size:0.8rem;">2. Validate SCST v2 magic header</div>
+              <div class="concept-arrow" style="margin-left:12px;">↓</div>
+              <div class="concept-box" style="width:100%; font-size:0.8rem;">3. Derive password key (PBKDF2-SHA256)</div>
+              <div class="concept-arrow" style="margin-left:12px;">↓</div>
+              <div class="concept-box" style="width:100%; font-size:0.8rem;">4. Recover session key (AES-GCM auth #1)</div>
+              <div class="concept-arrow" style="margin-left:12px;">↓</div>
+              <div class="concept-box" style="width:100%; font-size:0.8rem;">5. Decrypt message (AES-GCM auth #2)</div>
+              <div class="concept-arrow" style="margin-left:12px;">↓</div>
+              <div class="concept-box" style="width:100%; font-size:0.8rem; border-color:var(--success-border); color:var(--success);">6. Verify both auth tags → plaintext</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-steps" id="dProgressSteps">
+        <h4>Processing</h4>
+        <div class="step-item" id="dstep1"><span class="step-dot"></span><span class="step-icon">🔍</span> Extracting hidden payload...</div>
+        <div class="step-item" id="dstep2"><span class="step-dot"></span><span class="step-icon">✅</span> Validating payload header (SCST v2)...</div>
+        <div class="step-item" id="dstep3"><span class="step-dot"></span><span class="step-icon">🔑</span> Deriving password key (PBKDF2-HMAC-SHA256)...</div>
+        <div class="step-item" id="dstep4"><span class="step-dot"></span><span class="step-icon">🔓</span> Recovering session key (AES-GCM auth #1)...</div>
+        <div class="step-item" id="dstep5"><span class="step-dot"></span><span class="step-icon">🔐</span> Decrypting message (AES-GCM auth #2)...</div>
+        <div class="step-item" id="dstep6"><span class="step-dot"></span><span class="step-icon">📋</span> Recovering plaintext message...</div>
+      </div>
+
+      <!-- Error -->
+      <div id="decryptError" style="display:none;"></div>
+
+    </form>
+
+    <!-- Success Result -->
+    <div class="result-section" id="decryptResult">
+      <div class="divider"></div>
+      <div class="section-header">
+        <h2>✅ Decryption Successful</h2>
+        <p>The hidden message has been extracted, authenticated, and decrypted using the two-key architecture.</p>
+      </div>
+
+      <!-- Security status -->
+      <div class="two-col" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🏅</div>
+            <div><div class="card-title">Authentication Status</div></div>
+          </div>
+          <table class="security-table">
+            <tr><td>Password Verified</td><td><span class="status-verified" id="pwStatus">✓ VERIFIED</span></td></tr>
+            <tr><td>Session Key Recovered</td><td><span class="status-verified" id="skStatus">✓ RECOVERED</span></td></tr>
+            <tr><td>Message Authenticated</td><td><span class="status-verified" id="authStatus">✓ VERIFIED</span></td></tr>
+            <tr><td>Payload Integrity</td><td><span class="status-verified" id="integrityStatus">✓ VERIFIED</span></td></tr>
+            <tr><td>Payload Header</td><td><span class="status-verified">✓ SCST v2 Valid</span></td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📦</div>
+            <div><div class="card-title">Payload Info</div></div>
+          </div>
+          <table class="security-table">
+            <tr><td>Payload Size</td><td style="color:var(--indigo-400); font-family:monospace;" id="dPayloadSize">—</td></tr>
+          </table>
+          <div style="margin-top:1rem;">
+            <div class="meta-label" style="margin-bottom:6px;">SHA-256 Fingerprint</div>
+            <div class="fingerprint" id="dSha256">—</div>
+            <div class="form-hint" style="margin-top:6px;">
+              SHA-256 is for analysis only. Authentication is provided by AES-GCM.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decrypted message -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">📝</div>
+          <div>
+            <div class="card-title">Decrypted Message</div>
+            <div class="card-subtitle">Original plaintext recovered successfully</div>
+          </div>
+          <button onclick="copyMessage()" class="btn btn-secondary" style="margin-left:auto; padding: 8px 16px; font-size:0.8rem;">
+            📋 Copy
+          </button>
+        </div>
+        <div class="message-display" id="decryptedMessage"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

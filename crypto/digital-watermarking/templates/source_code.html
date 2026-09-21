@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}SOURCE CODE PROTECTION — Digital Content Protection{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="page-header">
+    <h1>💻 SOURCE CODE PROTECTION &amp; SIGNATURES</h1>
+    <p>Protect source code with language-aware comment headers and Ed25519 digital signatures. Does not execute code or corrupt file syntax.</p>
+  </div>
+
+  <form id="codeForm" enctype="multipart/form-data">
+    <div class="grid-2col">
+
+      <!-- Left Column: Upload -->
+      <div class="card glass-card">
+        <div class="card-header">
+          <div class="card-icon">📁</div>
+          <div>
+            <div class="card-title">1. Upload Source Code File</div>
+            <div class="card-subtitle">.py, .java, .c, .cpp, .js, .ts, .html, .css, .sh, .sql</div>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="codeDropZone">
+          <input type="file" name="code_file" id="codeInput" accept=".py,.java,.c,.cpp,.js,.ts,.html,.css,.sh,.sql,.txt,.md" required />
+          <span class="drop-zone-icon">💻</span>
+          <div class="drop-zone-text">Drag &amp; drop source file here</div>
+          <div class="drop-zone-hint">or click to browse from your device</div>
+        </div>
+
+        <div class="info-card-inner" id="codeFileInfo" style="display:none; margin-top:1.25rem;">
+          <div class="card-title" style="font-size:0.9rem; margin-bottom:8px;">File Information</div>
+          <div id="codeFileDetails"></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Settings -->
+      <div class="card glass-card">
+        <div class="card-header">
+          <div class="card-icon">🔐</div>
+          <div>
+            <div class="card-title">2. Ownership &amp; Signature Settings</div>
+            <div class="card-subtitle">Ed25519 Asymmetric Cryptographic Signing</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="codeOwner">Owner Name</label>
+          <input type="text" class="form-control" id="codeOwner" name="owner" value="Mohan Kumar J" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="codeProjectId">Project ID</label>
+          <input type="text" class="form-control" id="codeProjectId" name="project_id" value="PROJECT-001" required />
+        </div>
+
+        <div class="security-note-box">
+          🔒 <strong>Ed25519 Security Notice:</strong> The file bytes are signed using the server's private key. The private key remains secret and is never exposed to the frontend or source code.
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="codeProtectBtn">
+          PROTECT SOURCE CODE &amp; SIGN
+        </button>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Progress Bar -->
+  <div class="progress-card" id="codeProgressCard" style="display:none;">
+    <div class="progress-label">Inserting protection header and generating Ed25519 signature...</div>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="codeProgressBar"></div></div>
+  </div>
+
+  <!-- Error Alert -->
+  <div class="alert alert-danger" id="codeErrorAlert" style="display:none;"></div>
+
+  <!-- Output Result Card -->
+  <div class="card glass-card result-card" id="codeResultCard" style="display:none;">
+    <div class="card-header">
+      <div class="card-icon">✅</div>
+      <div>
+        <div class="card-title">Source Code Protected &amp; Signed</div>
+        <div class="card-subtitle">Comment protection header inserted and Ed25519 cryptographic signature generated</div>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <tr><td>Watermark ID</td><td><span class="badge badge-cyan" id="codeResWmid">—</span></td></tr>
+      <tr><td>Owner</td><td id="codeResOwner">—</td></tr>
+      <tr><td>Project ID</td><td id="codeResProj">—</td></tr>
+      <tr><td>Signature Algorithm</td><td><span class="badge badge-indigo">Ed25519</span></td></tr>
+      <tr><td>Hash Algorithm</td><td><span class="badge badge-info">SHA-256</span></td></tr>
+    </table>
+
+    <div style="margin-top:1.25rem;">
+      <div class="form-label">SHA-256 Fingerprint</div>
+      <div class="fingerprint-box" id="codeResSha256">—</div>
+    </div>
+
+    <div style="margin-top:1.25rem;">
+      <div class="form-label">Ed25519 Digital Signature (Hex)</div>
+      <div class="fingerprint-box" id="codeResSigHex" style="color:#00e676; font-size:0.8rem;">—</div>
+    </div>
+
+    <div class="btn-group-row" style="margin-top:1.5rem;">
+      <a href="#" id="downloadCodeBtn" class="btn btn-success btn-lg" download>
+        📥 Download Protected Source
+      </a>
+      <a href="#" id="downloadSigBtn" class="btn btn-outline btn-lg" download>
+        🖋️ Download Signature (.sig)
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

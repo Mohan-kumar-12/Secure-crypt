@@ -1,0 +1,3 @@
+"""
+Watermarking core package.
+"""

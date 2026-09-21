@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}PDF WATERMARKING — SecureCrypt{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 1.5rem;">
+
+  <div class="page-header">
+    <h1>📄 PDF WATERMARKING</h1>
+    <p>Apply visible watermarks directly onto PDF document pages using PyMuPDF while preserving document formatting, text quality, and page dimensions.</p>
+  </div>
+
+  <form id="pdfWatermarkForm" enctype="multipart/form-data">
+    <div class="grid-2col">
+
+      <!-- Left Column: Upload & PDF Info -->
+      <div class="card glass-card">
+        <div class="card-header">
+          <div class="card-icon">📁</div>
+          <div>
+            <div class="card-title">1. Upload PDF Document</div>
+            <div class="card-subtitle">PDF format only (Max 30 MB)</div>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="pdfDropZone">
+          <input type="file" name="pdf" id="pdfInput" accept=".pdf" required />
+          <span class="drop-zone-icon">📄</span>
+          <div class="drop-zone-text">Drag &amp; drop PDF document here</div>
+          <div class="drop-zone-hint">or click to browse from your device</div>
+        </div>
+
+        <div class="info-card-inner" id="pdfInfoCard" style="display:none; margin-top:1.25rem;">
+          <div class="card-title" style="font-size:0.9rem; margin-bottom:8px;">Document Details</div>
+          <div id="pdfMetaDetails"></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Settings -->
+      <div class="card glass-card">
+        <div class="card-header">
+          <div class="card-icon">⚙️</div>
+          <div>
+            <div class="card-title">2. Watermark Configuration</div>
+            <div class="card-subtitle">Configure text, opacity, and page selection</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pdfWatermarkText">Watermark Text</label>
+          <input type="text" class="form-control" id="pdfWatermarkText" name="watermark_text" value="CONFIDENTIAL" required />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="pdfOwner">Owner Name</label>
+            <input type="text" class="form-control" id="pdfOwner" name="owner" value="Mohan Kumar J" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pdfProjectId">Project ID</label>
+            <input type="text" class="form-control" id="pdfProjectId" name="project_id" value="PROJECT-001" required />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="pdfPosition">Position</label>
+            <select class="form-control" id="pdfPosition" name="position">
+              <option value="center" selected>Center (Diagonal)</option>
+              <option value="top-left">Top Left</option>
+              <option value="bottom-right">Bottom Right</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pdfOpacity">Opacity (<span id="pdfOpacityVal">20</span>%)</label>
+            <input type="range" class="form-range" id="pdfOpacity" name="opacity" min="5" max="100" value="20" oninput="document.getElementById('pdfOpacityVal').textContent=this.value" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Page Selection</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="pages_option" value="all" checked onclick="togglePageSelection(false)" />
+              All Pages
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="pages_option" value="selected" onclick="togglePageSelection(true)" />
+              Selected Pages
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" id="selectedPagesWrap" style="display:none;">
+          <label class="form-label" for="selectedPagesInput">Specify Pages (e.g. 1, 2, 5-8)</label>
+          <input type="text" class="form-control" id="selectedPagesInput" name="selected_pages" placeholder="e.g. 1, 3, 5-8" />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="pdfApplyBtn">
+          APPLY WATERMARK TO PDF
+        </button>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Progress Bar -->
+  <div class="progress-card" id="pdfProgressCard" style="display:none;">
+    <div class="progress-label">Watermarking PDF pages using PyMuPDF engine...</div>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="pdfProgressBar"></div></div>
+  </div>
+
+  <!-- Error Alert -->
+  <div class="alert alert-danger" id="pdfErrorAlert" style="display:none;"></div>
+
+  <!-- Output Result Card -->
+  <div class="card glass-card result-card" id="pdfResultCard" style="display:none; margin-top:1.5rem;">
+    <div class="card-header">
+      <div class="card-icon">✅</div>
+      <div>
+        <div class="card-title">PDF Watermarked Successfully</div>
+        <div class="card-subtitle">Document watermarked with PyMuPDF and metadata embedded</div>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <tr><td>Watermark ID</td><td><span class="badge badge-cyan" id="pdfResWmid">—</span></td></tr>
+      <tr><td>Owner</td><td id="pdfResOwner">—</td></tr>
+      <tr><td>Project ID</td><td id="pdfResProj">—</td></tr>
+      <tr><td>Pages Protected</td><td id="pdfResPages">—</td></tr>
+      <tr><td>Created At</td><td id="pdfResCreated">—</td></tr>
+      <tr><td>Content Type</td><td><span class="badge badge-info">PDF Document</span></td></tr>
+    </table>
+
+    <div style="margin-top:1.25rem;">
+      <div class="form-label">SHA-256 Fingerprint</div>
+      <div class="fingerprint-box" id="pdfResSha256">—</div>
+    </div>
+
+    <div style="margin-top:1.5rem; text-align:center;">
+      <a href="#" id="downloadPdfBtn" class="btn btn-success btn-lg" download>
+        📥 Download Watermarked PDF
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function togglePageSelection(show) {
+    document.getElementById('selectedPagesWrap').style.display = show ? 'block' : 'none';
+  }
+</script>
+{% endblock %}
