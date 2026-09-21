@@ -5,3 +5,4 @@ numpy>=1.26
 opencv-python-headless>=4.9
 scikit-image>=0.22
 pytest>=8.0
+PyMuPDF>=1.23.0
